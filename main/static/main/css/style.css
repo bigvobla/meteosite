@@ -83,34 +83,120 @@ body{
     color: #cccccc;
 }
 
-.nav-links {
-    list-style: none;
-}
-
+/* Навигация */
 .nav-link {
-    font-family: "Poppins", sans-serif;
-    font-weight: 400;
-    color: white;
-    text-decoration: none;
     position: relative;
     padding-bottom: 5px;
+    transition: all 0.3s ease;
 }
 
-.nav-link.active,
-.nav-link:hover {
-    font-weight: 600;
-}
-
-.nav-link.active::after,
-.nav-link:hover::after {
+.nav-link::after {
     content: '';
     display: block;
-    width: 100%;
+    width: 0;
     height: 2px;
     background-color: #888;
     position: absolute;
     bottom: 0;
     left: 0;
+    transition: width 0.3s ease;
 }
 
+.nav-link.active::after {
+    width: 100%;
+}
 
+.nav-link:hover {
+    font-weight: 600;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* Weather Cards */
+.weather-card {
+    background: linear-gradient(145deg, #a855f7, #000);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.forecast-card {
+    background: linear-gradient(to bottom right, #00bcd4, #00838f);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.hourly-card {
+    background: linear-gradient(to right, #4b6cb7, #182848);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Weather Elements */
+.weather-icon {
+    height: 60px;
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
+}
+
+.temperature {
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.weather-details h6 {
+    font-weight: 600;
+}
+
+/* Forecast */
+.forecast-container {
+    padding: 0 10px;
+}
+
+.forecast-day {
+    padding: 8px 12px;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Hourly Forecast */
+.hourly-forecast {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.hourly-forecast::-webkit-scrollbar {
+    height: 6px;
+}
+
+.hourly-forecast::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+.hour-item {
+    min-width: 60px;
+    padding: 10px;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.hour-item:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+}
+
+.hour {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.temp {
+    font-weight: 600;
+    margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+    .hour-item {
+        min-width: 50px;
+        padding: 8px;
+    }
+}

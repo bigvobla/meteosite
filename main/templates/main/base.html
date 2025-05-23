@@ -17,11 +17,11 @@
                     <div class="time-text"></div>
                 </div>
             </div>
-            <nav>
+           <nav>
                 <ul class="d-flex nav-links gap-4 mb-0">
-                    <li><a href="/" class="nav-link active">Главная</a></li>
-                    <li><a href="/about" class="nav-link">О проекте</a></li>
-                    <li><a href="/meteodata" class="nav-link">Метеоданные</a></li>
+                    <li><a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">Главная</a></li>
+                    <li><a href="/about" class="nav-link {% if request.path == '/about/' %}active{% endif %}">О проекте</a></li>
+                    <li><a href="/meteodata" class="nav-link {% if request.path == '/meteodata/' %}active{% endif %}">Метеоданные</a></li>
                 </ul>
             </nav>
         </header>
