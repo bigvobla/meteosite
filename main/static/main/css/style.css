@@ -1,61 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap');
-
-*{
-    margin: 0;
-    padding: 0;
-}
-
-a{
-    font-family: "Poppins", sans-serif;
-    font-weight: 300;
-    font-style: normal;
-    color: white;
-    text-decoration: none; 
-}
-
-img{
-    max-width: 100%s;
-}
-
-h1{
-   
-}
-
-li{
-    font-family: "Poppins", sans-serif;
-    font-weight: 400;
-    font-style: normal;
-}
-
-body{
-    background: linear-gradient(180deg,rgba(0, 0, 0, 1) 34%, rgba(84, 184, 167, 1) 100%, rgba(130, 130, 130, 1) 65%);
+body {
+    background: linear-gradient(180deg, rgba(0, 0, 0, 1) 34%, rgba(84, 184, 167, 1) 100%, rgba(130, 130, 130, 1) 65%);
     min-height: 100vh;
     margin: 0;
     color: white;
-}
-
-.wrapper {
-    padding: 20px 0; 
+    font-family: 'Poppins', sans-serif;
 }
 
 .container {
-    width: 1080px;
+    width: 1000px;
     margin: 0 auto;
-    background-color: rgba(30, 30, 30);
-    margin-top: 10px;
-    
-}
-
-.top-bar {
-    background-color: #1e1e1e;
+    background-color: rgba(30, 30, 30, 0.8);
     padding: 20px;
-    border-radius: 8px;
-    margin-top: 10px;
-}
-
-.logo img.weather-icon {
-    width: 40px;
-    height: 40px;
+    border-radius: 10px;
+    margin-top: 20px;
 }
 
 .site-name {
@@ -78,12 +35,24 @@ body{
     margin-top: 3px;
 }
 
-.time-text {
-    font-size: 12px;
-    color: #cccccc;
+li{
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
 }
 
-/* Навигация */
+a{
+    font-family: "Poppins", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+    color: white;
+    text-decoration: none; 
+}
+
+
 .nav-link {
     position: relative;
     padding-bottom: 5px;
@@ -114,89 +83,32 @@ body{
     width: 100%;
 }
 
-/* Weather Cards */
-.weather-card {
-    background: linear-gradient(145deg, #a855f7, #000);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+.temp-switch .btn {
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    font-weight: 500;
 }
 
-.forecast-card {
-    background: linear-gradient(to bottom right, #00bcd4, #00838f);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+.temp-switch .btn.active {
+    background-color: rgba(255, 255, 255, 0.25);
+    border-color: white;
+    color: #ffffff;
 }
 
-.hourly-card {
-    background: linear-gradient(to right, #4b6cb7, #182848);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-/* Weather Elements */
-.weather-icon {
-    height: 60px;
-    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
-}
-
-.temperature {
-    font-weight: 700;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.weather-details h6 {
-    font-weight: 600;
-}
-
-/* Forecast */
-.forecast-container {
-    padding: 0 10px;
-}
-
-.forecast-day {
-    padding: 8px 12px;
-    border-radius: 10px;
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-/* Hourly Forecast */
 .hourly-forecast {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  display: flex;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.3) transparent;
 }
 
-.hourly-forecast::-webkit-scrollbar {
-    height: 6px;
-}
-
-.hourly-forecast::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 3px;
-}
-
-.hour-item {
-    min-width: 60px;
-    padding: 10px;
-    border-radius: 12px;
-    background-color: rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
-}
-
-.hour-item:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-3px);
-}
-
-.hour {
-    font-size: 0.9rem;
-    opacity: 0.8;
-}
-
-.temp {
-    font-weight: 600;
-    margin-top: 5px;
-}
-
-@media (max-width: 768px) {
-    .hour-item {
-        min-width: 50px;
-        padding: 8px;
-    }
+.hour-card {
+  flex: 0 0 auto;
+  width: 100px;
+  background: linear-gradient(145deg, #AD36CB 27%, #333333 63%);
+  border-radius: 15px;
+  text-align: center;
+  color: white;
+  font-size: 14px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }

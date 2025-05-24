@@ -1,14 +1,24 @@
 {% extends 'main/base.html' %}
 {% load static %}
-
 {% block title %}Главная{% endblock %}
-
 {% block content %}
+{% block scripts %}
+<script src="{% static 'main/js/scripts.js' %}"></script>
+{% endblock %}
+
 <div class="container mt-4">
-    <!-- Слайдер с погодой -->
-    <div id="weatherSlider" class="carousel slide mb-4" data-bs-ride="carousel">
+    <!-- Переключатель температуры -->
+    <div class="d-flex justify-content-end pt-3 mb-3">
+        <div class="btn-group temp-switch" role="group">
+            <button type="button" class="btn btn-outline-light temp-unit active" data-unit="c">°C</button>
+            <button type="button" class="btn btn-outline-light temp-unit" data-unit="f">°F</button>
+        </div>
+    </div>
+
+    <!-- Карусель: текущая погода и 5-дневный прогноз -->
+    <div id="weatherSlider" class="carousel slide mb-4" data-bs-interval="false" data-bs-ride="false">
         <div class="carousel-inner" style="border-radius: 20px;">
-            <!-- Слайд 1 - Текущая погода -->
+            <!-- Слайд 1 -->
             <div class="carousel-item active">
                 <div class="card text-white p-4" style="background: linear-gradient(145deg, #AD36CB 27%, #333333 63%); border-radius: 20px;">
                     <div class="d-flex justify-content-between align-items-center">
@@ -39,11 +49,15 @@
                         </div>
                     </div>
                 </div>
+                <button class="carousel-control-next" type="button" data-bs-target="#weatherSlider" data-bs-slide="next" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%);">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
             </div>
-            
-            <!-- Слайд 2 - Прогноз на 5 дней -->
+
+            <!-- Слайд 2 -->
             <div class="carousel-item">
-                <div class="card text-white p-4" style="background: linear-gradient(145deg, #AD36CB 27%, #333333 63%); border-radius: 20px; height: 100%;">
+                <div class="card text-white p-4" style="background: linear-gradient(145deg, #AD36CB 27%, #333333 63%); border-radius: 20px;">
                     <h4 class="text-center mb-4">ПРОГНОЗ НА 5 ДНЕЙ</h4>
                     <div class="forecast-container">
                         {% for day in forecast %}
@@ -57,39 +71,28 @@
                         {% endfor %}
                     </div>
                 </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#weatherSlider" data-bs-slide="prev" style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%);">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
             </div>
         </div>
-        
-        <!-- Элементы управления слайдером -->
-        <button class="carousel-control-prev" type="button" data-bs-target="#weatherSlider" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#weatherSlider" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-        </button>
     </div>
 
-    <!-- Почасовой прогноз -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card text-white p-4" style="background: linear-gradient(145deg, #AD36CB 27%, #333333 63%); border-radius: 20px;">
-                <h5 class="mb-3">ПОЧАСОВОЙ ПРОГНОЗ</h5>
-                <div class="hourly-forecast d-flex overflow-auto pb-2">
-                    {% for hour in hourly %}
-                    <div class="hour-item text-center me-3">
-                        <div class="hour">{{ hour.time }}</div>
-                        <img src="{% static hour.icon %}" alt="{{ hour.condition }}" width="40">
-                        <div class="temp">{{ hour.temp }}°C</div>
-                    </div>
-                    {% endfor %}
+    <!-- Почасовой прогноз ПОД слайдером -->
+    <div class="hourly-section mt-5">
+        <h5 class="mb-3 text-white">ПОЧАСОВОЙ ПРОГНОЗ</h5>
+        <div class="hourly-forecast d-flex overflow-auto">
+            {% for hour in hourly %}
+            <div class="hour-card text-white p-3 me-3">
+                <div class="text-center">
+                    <div class="hour mb-2">{{ hour.time }}</div>
+                    <img src="{% static hour.icon %}" alt="{{ hour.condition }}" width="40" class="mb-2">
+                    <div class="temp">{{ hour.temp }}°C</div>
                 </div>
             </div>
+            {% endfor %}
         </div>
     </div>
 </div>
-
-<!-- Подключение Bootstrap JS для работы слайдера -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}
