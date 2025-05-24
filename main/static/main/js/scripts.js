@@ -1,20 +1,36 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const buttons = document.querySelectorAll(".temp-switch .temp-unit");
+    const unitButtons = document.querySelectorAll('.temp-unit');
+    let currentUnit = 'c';
 
-    buttons.forEach(button => {
-        button.addEventListener("click", function () {
-            if (this.classList.contains("active")) return;
+    unitButtons.forEach(btn => {
+        btn.addEventListener('click', function () {
+            unitButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
 
-            buttons.forEach(btn => btn.classList.remove("active"));
-            this.classList.add("active");
-
-            const selectedUnit = this.getAttribute("data-unit");
-            console.log("Выбрана единица:", selectedUnit);
+            const unit = this.getAttribute('data-unit');
+            if (unit !== currentUnit) {
+                convertTemps(unit);
+                currentUnit = unit;
+            }
         });
     });
-});
 
-document.addEventListener("DOMContentLoaded", function () {
+    function convertTemps(toUnit) {
+        const temps = document.querySelectorAll('.temperature, .temp');
+
+        temps.forEach(el => {
+            const celsius = parseFloat(el.getAttribute('data-celsius'));
+            if (isNaN(celsius)) return;
+
+            if (toUnit === 'f') {
+                el.innerText = `${(celsius * 9 / 5 + 32).toFixed(1)}°F`;
+            } else {
+                el.innerText = `${celsius.toFixed(1)}°C`;
+            }
+        });
+    }
+
+    // Текущее время и дата
     const timeEl = document.getElementById("current-time");
     const dateEl = document.getElementById("current-date");
 
@@ -24,21 +40,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function updateDateTime() {
         const now = new Date();
-
-        // Текущее время (с секундами)
         const hours = now.getHours().toString().padStart(2, "0");
         const minutes = now.getMinutes().toString().padStart(2, "0");
         timeEl.textContent = `${hours}:${minutes}`;
 
-        // Текущая дата
         const day = now.getDate();
         const month = months[now.getMonth()];
         const weekday = days[now.getDay()];
         dateEl.textContent = `${day} ${month}, ${weekday}`;
     }
 
-    updateDateTime(); // первая загрузка
-    setInterval(updateDateTime, 1000); // обновление каждую секунду
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
 });
-
-

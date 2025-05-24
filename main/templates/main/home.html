@@ -8,7 +8,8 @@
 
 <div class="container mt-4">
     <!-- Переключатель температуры -->
-    <div class="d-flex justify-content-end pt-3 mb-3">
+    <div class="d-flex justify-content-between pt-3 mb-3">
+        <h3>Данные со станции</h3>
         <div class="btn-group temp-switch" role="group">
             <button type="button" class="btn btn-outline-light temp-unit active" data-unit="c">°C</button>
             <button type="button" class="btn btn-outline-light temp-unit" data-unit="f">°F</button>
@@ -26,26 +27,26 @@
                         <span id="current-time">21:00</span>
                     </div>
                     <div class="d-flex align-items-center mt-3">
-                        <h1 class="display-3 temperature">27°C</h1>
+                        <h1 class="display-3 temperature" data-celsius="{{ current.temperature }}">{{ current.temperature }}°C</h1>
                         <img src="{% static 'main/img/cloudy.png' %}" class="ms-3 weather-icon" alt="Облачно">
                     </div>
                     <div class="mt-2 date" id="current-date">Число месяц, день</div>
                     <div class="row mt-4 text-center weather-details">
                         <div class="col">
                             <p class="mb-1">Влажность</p>
-                            <h6 class="humidity">99%</h6>
+                            <h6 class="humidity">{{ current.humidity }}%</h6>
                         </div>
                         <div class="col">
-                            <p class="mb-1">Видимость</p>
-                            <h6 class="visibility">8 km</h6>
+                            <p class="mb-1">Облачность</p>
+                            <h6 class="visibility">{{ current.cloudiness }}</h6>
                         </div>
                         <div class="col">
                             <p class="mb-1">Давление</p>
-                            <h6 class="pressure">1005 hPa</h6>
+                            <h6 class="pressure">{{ current.pressure }}Pa</h6>
                         </div>
                         <div class="col">
                             <p class="mb-1">Ветер</p>
-                            <h6 class="wind">2 mph</h6>
+                            <h6 class="wind">{{ current.wind }} м/с</h6>
                         </div>
                     </div>
                 </div>
@@ -57,42 +58,43 @@
 
             <!-- Слайд 2 -->
             <div class="carousel-item">
-                <div class="card text-white p-4" style="background: linear-gradient(145deg, #AD36CB 27%, #333333 63%); border-radius: 20px;">
-                    <h4 class="text-center mb-4">ПРОГНОЗ НА 5 ДНЕЙ</h4>
-                    <div class="forecast-container">
-                        {% for day in forecast %}
-                        <div class="forecast-day d-flex justify-content-between align-items-center mb-2">
-                            <span>{{ day.day }}</span>
-                            <div class="d-flex align-items-center">
-                                <img src="{% static day.icon %}" alt="{{ day.condition }}" width="30">
-                                <span class="ms-2">{{ day.temp }}°C</span>
-                            </div>
+            <div class="card text-white p-4" style="background: linear-gradient(145deg, #28a745 27%, #333333 63%); border-radius: 20px;">
+                <h4 class="text-center mb-4">ПРОГНОЗ НА 5 ДНЕЙ</h4>
+                <div class="forecast-container">
+                    {% for day in forecast %}
+                    <div class="forecast-day d-flex justify-content-between align-items-center mb-2">
+                        <span>{{ day.day }}</span>
+                        <div class="d-flex align-items-center">
+                            <img src="{% static day.icon %}" alt="{{ day.condition }}" width="30">
+                            <span class="ms-2 temp">{{ day.temp }}°C</span>
                         </div>
-                        {% endfor %}
                     </div>
+                    {% endfor %}
                 </div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#weatherSlider" data-bs-slide="prev" style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%);">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
+            </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#weatherSlider" data-bs-slide="prev" style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%);">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+</div>
             </div>
         </div>
     </div>
 
     <!-- Почасовой прогноз ПОД слайдером -->
-    <div class="hourly-section mt-5">
-        <h5 class="mb-3 text-white">ПОЧАСОВОЙ ПРОГНОЗ</h5>
-        <div class="hourly-forecast d-flex overflow-auto">
+    <div class="hourly-wrapper mt-5 py-4 px-3 rounded bg-dark">
+        <h5 class="mb-4 text-white">ПОЧАСОВОЙ ПРОГНОЗ</h5>
+        <div class="d-flex overflow-auto hourly-forecast">
             {% for hour in hourly %}
-            <div class="hour-card text-white p-3 me-3">
-                <div class="text-center">
-                    <div class="hour mb-2">{{ hour.time }}</div>
-                    <img src="{% static hour.icon %}" alt="{{ hour.condition }}" width="40" class="mb-2">
-                    <div class="temp">{{ hour.temp }}°C</div>
-                </div>
+            <div class="hour-card text-white text-center me-3">
+                <div class="hour-time text-uppercase mb-1">{{ hour.time }}</div>
+                <img src="{% static hour.icon %}" alt="{{ hour.condition }}" class="weather-icon mb-1" width="40">
+                <div class="temp" data-celsius="{{ hour.temp }}">{{ hour.temp }}°C</div>
             </div>
             {% endfor %}
         </div>
     </div>
+
+
 </div>
 {% endblock %}

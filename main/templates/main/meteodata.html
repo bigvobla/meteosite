@@ -1,53 +1,82 @@
-{ %load static% }
-{%extends 'main/base.html'%}
-{%block title%} Метеоданные{%endblock%}
-{%block content%}
+{% extends 'main/base.html' %}
+{% block title %}Метеоданные{% endblock %}
+{% block content %}
+
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="mb-0">Метеоданные за период</h4>
         <form method="get" action="{% url 'export_csv' %}">
             <input type="hidden" name="start_date" value="{{ request.GET.start_date }}">
             <input type="hidden" name="end_date" value="{{ request.GET.end_date }}">
+            <input type="hidden" name="mode" value="{{ mode }}">
             <button type="submit" class="btn btn-outline-light">Экспорт CSV</button>
         </form>
     </div>
 
-    <!-- Фильтр по дате -->
+    <!-- Фильтр + выбор режима -->
     <form method="get" class="row g-3 align-items-end mb-4">
-        <div class="col-md-5">
+        <div class="col-md-3">
             <label for="start_date" class="form-label">С даты</label>
             <input type="date" class="form-control" id="start_date" name="start_date" value="{{ request.GET.start_date }}">
         </div>
-        <div class="col-md-5">
+        <div class="col-md-3">
             <label for="end_date" class="form-label">По дату</label>
             <input type="date" class="form-control" id="end_date" name="end_date" value="{{ request.GET.end_date }}">
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3">
+            <label for="mode" class="form-label">Тип данных</label>
+            <select name="mode" class="form-select" id="mode">
+                <option value="hourly" {% if mode == "hourly" %}selected{% endif %}>Почасовые</option>
+                <option value="average" {% if mode == "average" %}selected{% endif %}>Средние</option>
+            </select>
+        </div>
+        <div class="col-md-3">
             <button type="submit" class="btn btn-primary w-100">Показать</button>
         </div>
     </form>
 
-    <!-- Таблица данных -->
+    <!-- Таблица -->
     <div class="table-responsive">
         <table class="table table-dark table-bordered table-hover">
             <thead class="table-secondary text-dark">
+                {% if mode == "hourly" %}
                 <tr>
-                    <th scope="col">Дата</th>
-                    <th scope="col">Темп. макс</th>
-                    <th scope="col">Темп. мин</th>
-                    <th scope="col">Темп. ср</th>
-                    <th scope="col">Давление макс</th>
-                    <th scope="col">Давление мин</th>
-                    <th scope="col">Давление ср</th>
-                    <th scope="col">Ветер ср</th>
-                    <th scope="col">Влажность макс</th>
-                    <th scope="col">Влажность мин</th>
-                    <th scope="col">Влажность ср</th>
-                    <th scope="col">Облачность</th>
+                    <th>Дата и время</th>
+                    <th>Температура</th>
+                    <th>Давление</th>
+                    <th>Влажность</th>
+                    <th>Ветер</th>
+                    <th>Облачность</th>
                 </tr>
+                {% else %}
+                <tr>
+                    <th>Дата</th>
+                    <th>Темп. макс</th>
+                    <th>Темп. мин</th>
+                    <th>Темп. ср</th>
+                    <th>Давл. макс</th>
+                    <th>Давл. мин</th>
+                    <th>Давл. ср</th>
+                    <th>Влажн. макс</th>
+                    <th>Влажн. мин</th>
+                    <th>Влажн. ср</th>
+                    <th>Ветер ср</th>
+                    <th>Облачность</th>
+                </tr>
+                {% endif %}
             </thead>
             <tbody>
                 {% for row in data %}
+                {% if mode == "hourly" %}
+                <tr>
+                    <td>{{ row.timestamp }}</td>
+                    <td>{{ row.temperature }}°C</td>
+                    <td>{{ row.pressure }} hPa</td>
+                    <td>{{ row.humidity }}%</td>
+                    <td>{{ row.wind_speed }} м/с</td>
+                    <td>{{ row.cloudiness }}%</td>
+                </tr>
+                {% else %}
                 <tr>
                     <td>{{ row.date }}</td>
                     <td>{{ row.temp_max }}°C</td>
@@ -56,12 +85,13 @@
                     <td>{{ row.pressure_max }} hPa</td>
                     <td>{{ row.pressure_min }} hPa</td>
                     <td>{{ row.pressure_avg }} hPa</td>
-                    <td>{{ row.wind_avg }} m/s</td>
                     <td>{{ row.humidity_max }}%</td>
                     <td>{{ row.humidity_min }}%</td>
                     <td>{{ row.humidity_avg }}%</td>
+                    <td>{{ row.wind_avg }} м/с</td>
                     <td>{{ row.cloudiness }}%</td>
                 </tr>
+                {% endif %}
                 {% endfor %}
             </tbody>
         </table>
@@ -71,17 +101,20 @@
     <nav aria-label="Навигация по страницам">
         <ul class="pagination justify-content-center">
             {% if data.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ data.previous_page_number }}&start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}">Назад</a>
-                </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ data.previous_page_number }}&start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}&mode={{ mode }}">Назад</a>
+            </li>
             {% endif %}
-            <li class="page-item disabled"><span class="page-link">Страница {{ data.number }} из {{ data.paginator.num_pages }}</span></li>
+            <li class="page-item disabled">
+                <span class="page-link">Стр. {{ data.number }} из {{ data.paginator.num_pages }}</span>
+            </li>
             {% if data.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ data.next_page_number }}&start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}">Вперёд</a>
-                </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ data.next_page_number }}&start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}&mode={{ mode }}">Вперёд</a>
+            </li>
             {% endif %}
         </ul>
     </nav>
 </div>
-{%endblock%}
+
+{% endblock %}
