@@ -5,6 +5,7 @@ from .models import WeatherData,WeatherReading
 from django.core.paginator import Paginator
 import requests
 
+
 def home(request):
     try:
         latest = WeatherReading.objects.latest('timestamp')
@@ -27,21 +28,20 @@ def home(request):
             'timestamp': '--:--',
             'date': '--.--.----'
         }
-    hourly = WeatherReading.objects.order_by('-timestamp')[:12][::-1]  # в хронологическом порядке
+
+    hourly = WeatherReading.objects.order_by('-timestamp')[:12][::-1]
 
     context = {
         'current': current,
         'hourly': [{
             'time': h.timestamp.strftime('%H:%M'),
             'temp': h.temperature,
-            'condition': '—',  # если нет текстового описания
-            'icon': 'main/img/cloudy.png'  # или динамически по cloudiness
-        } for h in hourly],
-        'forecast': []  # временно можно оставить пустым
+            'condition': '—',
+            'icon': 'main/img/cloudy.png'
+        } for h in hourly]
     }
 
     return render(request, 'main/home.html', context)
-
 
 def get_wind_speed_weatherapi(city='Karaganda', api_key='9bd9d06fa2ce42448d3105854252202 '):
     try:
@@ -134,3 +134,27 @@ def export_csv(request):
                 row.wind_avg, row.cloudiness
             ])
         return response
+
+def update_daily_summary():
+    today = now().date()
+    readings = WeatherReading.objects.filter(timestamp__date=today)
+
+    if not readings.exists():
+        return
+
+    WeatherData.objects.update_or_create(
+        date=today,
+        defaults={
+            'temp_avg': readings.aggregate(Avg('temperature'))['temperature__avg'],
+            'temp_min': readings.aggregate(Min('temperature'))['temperature__min'],
+            'temp_max': readings.aggregate(Max('temperature'))['temperature__max'],
+            'pressure_avg': readings.aggregate(Avg('pressure'))['pressure__avg'],
+            'pressure_min': readings.aggregate(Min('pressure'))['pressure__min'],
+            'pressure_max': readings.aggregate(Max('pressure'))['pressure__max'],
+            'humidity_avg': readings.aggregate(Avg('humidity'))['humidity__avg'],
+            'humidity_min': readings.aggregate(Min('humidity'))['humidity__min'],
+            'humidity_max': readings.aggregate(Max('humidity'))['humidity__max'],
+            'wind_avg': readings.aggregate(Avg('wind_speed'))['wind_speed__avg'],
+            'cloudiness': readings.aggregate(Avg('cloudiness'))['cloudiness__avg'],
+        }
+    )
