@@ -1,9 +1,10 @@
 {% extends 'main/base.html' %}
-{% load static %}
+{% load static cloudiness_tags %}
+
 {% block title %}Главная{% endblock %}
+
 {% block content %}
 {% block scripts %}
-{% load static cloudiness_tags %}
 <script src="{% static 'main/js/scripts.js' %}"></script>
 {% endblock %}
 
@@ -17,10 +18,9 @@
         </div>
     </div>
 
-    <!-- Карусель: текущая погода  -->
+    <!-- Карусель: текущая погода -->
     <div id="weatherSlider" class="carousel slide mb-4" data-bs-interval="false" data-bs-ride="false">
         <div class="carousel-inner" style="border-radius: 20px;">
-            <!-- Слайд 1 -->
             <div class="carousel-item active">
                 <div class="card text-white p-4" style="background: linear-gradient(145deg, #AD36CB 27%, #333333 63%); border-radius: 20px;">
                     <div class="d-flex justify-content-between align-items-center">
@@ -29,7 +29,8 @@
                     </div>
                     <div class="d-flex align-items-center mt-3">
                         <h1 class="display-3 temperature" data-celsius="{{ current.temperature }}">{{ current.temperature }}°C</h1>
-                        <img src="{% get_cloudiness_icon current.cloudiness %}" alt="Облачность" class="weather-icon">
+                        <img src="{% static cloud_icon current.cloudiness %}" alt="Облачность" class="weather-icon">
+                    </div>
                     <div class="mt-2 date" id="current-date">Число месяц, день</div>
                     <div class="row mt-4 text-center weather-details">
                         <div class="col">
@@ -53,14 +54,29 @@
             </div>
         </div>
     </div>
+
     <!-- График температуры -->
     <div class="mt-5 text-center">
         <h5 class="mb-3 text-white">График изменения температуры</h5>
         <img id="tempChart" src="{{ temp_chart }}" alt="График температуры" class="img-fluid rounded shadow">
     </div>
-    <script>
-        
-    </script>
 
+    <script>
+        const chartUrl = "{% url 'chart_data' %}";
+
+        function updateChart() {
+            fetch(chartUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.chart) {
+                        document.getElementById('tempChart').src = data.chart;
+                    }
+                })
+                .catch(err => console.error("Ошибка обновления графика:", err));
+        }
+
+        updateChart();
+        setInterval(updateChart, 10000);
+    </script>
 </div>
 {% endblock %}
