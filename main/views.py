@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 from io import BytesIO
 from .models import WeatherData, WeatherReading
 
-# ВНЕ функции — теперь доступна и для API
 def get_temperature_plot():
     readings = WeatherReading.objects.order_by('-timestamp')[:12][::-1]
     times = [r.timestamp.strftime('%H:%M') for r in readings]
