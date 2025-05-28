@@ -49,7 +49,22 @@ document.addEventListener("DOMContentLoaded", function () {
         const weekday = days[now.getDay()];
         dateEl.textContent = `${day} ${month}, ${weekday}`;
     }
-
     updateDateTime();
+
     setInterval(updateDateTime, 1000);
+    function updateChart() {
+            fetch("{% url 'chart_data' %}")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.chart) {
+                        document.getElementById('tempChart').src = data.chart;
+                    }
+                })
+                .catch(err => console.error("Ошибка обновления графика:", err));
+        }
+
+        updateChart();
+        setInterval(updateChart, 10000);
 });
+        
+

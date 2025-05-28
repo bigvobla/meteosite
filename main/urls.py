@@ -8,4 +8,5 @@ urlpatterns = [
     path('about/',views.about),
     path('meteodata/',views.meteodata),
     path('export/', views.export_csv, name='export_csv'), 
+    path('chart-data/', views.temperature_chart_data, name='chart_data'),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

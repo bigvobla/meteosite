@@ -4,7 +4,11 @@ import csv
 from .models import WeatherData,WeatherReading
 from django.core.paginator import Paginator
 import requests
-
+from io import BytesIO
+import base64
+import matplotlib.pyplot as plt
+from django.views.decorators.http import require_GET
+from django.http import JsonResponse
 
 def home(request):
     try:
@@ -40,6 +44,27 @@ def home(request):
             'icon': 'main/img/cloudy.png'
         } for h in hourly]
     }
+    def get_temperature_plot():
+        readings = WeatherReading.objects.order_by('-timestamp')[:12][::-1]
+        times = [r.timestamp.strftime('%H:%M') for r in readings]
+        temps = [r.temperature for r in readings]
+
+        plt.figure(figsize=(10, 3))
+        plt.plot(times, temps, marker='o', color='cyan', linewidth=2)
+        plt.xticks(rotation=45)
+        plt.title("График температуры (12 часов)")
+        plt.grid(True)
+        plt.tight_layout()
+
+        buffer = BytesIO()
+        plt.savefig(buffer, format='png')
+        buffer.seek(0)
+        image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        buffer.close()
+        return f"data:image/png;base64,{image_base64}"
+        
+    context['temp_chart'] = get_temperature_plot()
+
 
     return render(request, 'main/home.html', context)
 
@@ -158,3 +183,21 @@ def update_daily_summary():
             'cloudiness': readings.aggregate(Avg('cloudiness'))['cloudiness__avg'],
         }
     )
+@require_GET
+def temperature_chart_data(request):
+    try:
+        chart = get_temperature_plot()
+        return JsonResponse({'chart': chart})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+def get_cloudiness_weatherapi(city='Karaganda', api_key='your_api_key'):
+    try:
+        url = f"http://api.weatherapi.com/v1/current.json?key={api_key}&q={city}&aqi=no"
+        response = requests.get(url, timeout=5)
+        data = response.json()
+        return data['current']['cloud']
+    except Exception as e:
+        print("Ошибка получения облачности:", e)
+        return None

@@ -3,6 +3,7 @@
 {% block title %}Главная{% endblock %}
 {% block content %}
 {% block scripts %}
+{% load static cloudiness_tags %}
 <script src="{% static 'main/js/scripts.js' %}"></script>
 {% endblock %}
 
@@ -28,8 +29,7 @@
                     </div>
                     <div class="d-flex align-items-center mt-3">
                         <h1 class="display-3 temperature" data-celsius="{{ current.temperature }}">{{ current.temperature }}°C</h1>
-                        <img src="{% static 'main/img/cloudy.png' %}" class="ms-3 weather-icon" alt="Облачно">
-                    </div>
+                        <img src="{% get_cloudiness_icon current.cloudiness %}" alt="Облачность" class="weather-icon">
                     <div class="mt-2 date" id="current-date">Число месяц, день</div>
                     <div class="row mt-4 text-center weather-details">
                         <div class="col">
@@ -53,5 +53,14 @@
             </div>
         </div>
     </div>
+    <!-- График температуры -->
+    <div class="mt-5 text-center">
+        <h5 class="mb-3 text-white">График изменения температуры</h5>
+        <img id="tempChart" src="{{ temp_chart }}" alt="График температуры" class="img-fluid rounded shadow">
+    </div>
+    <script>
+        
+    </script>
+
 </div>
 {% endblock %}
