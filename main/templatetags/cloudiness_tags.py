@@ -4,8 +4,11 @@ register = template.Library()
 
 @register.simple_tag
 def cloud_icon(cloudiness):
-    if cloudiness is None:
+    try:
+        cloudiness = float(cloudiness)
+    except (TypeError, ValueError):
         return 'main/img/unknown.png'
+
     if cloudiness < 20:
         return 'main/img/sunny.png'
     elif cloudiness < 50:
@@ -13,4 +16,5 @@ def cloud_icon(cloudiness):
     elif cloudiness < 80:
         return 'main/img/cloudy.png'
     else:
-        return 'main/img/very_cloudy.png'
+        return 'main/img/very-cloudy.png'
+

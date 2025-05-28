@@ -29,7 +29,8 @@
                     </div>
                     <div class="d-flex align-items-center mt-3">
                         <h1 class="display-3 temperature" data-celsius="{{ current.temperature }}">{{ current.temperature }}°C</h1>
-                        <img src="{% static cloud_icon current.cloudiness %}" alt="Облачность" class="weather-icon">
+                        {% cloud_icon current.cloudiness as cloud_path %}
+                        <img src="{% static cloud_path %}" alt="Облачность" class="weather-icon">
                     </div>
                     <div class="mt-2 date" id="current-date">Число месяц, день</div>
                     <div class="row mt-4 text-center weather-details">
