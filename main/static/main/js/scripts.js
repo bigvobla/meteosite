@@ -17,11 +17,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function convertTemps(toUnit) {
         const temps = document.querySelectorAll('.temperature, .temp');
-
         temps.forEach(el => {
             const celsius = parseFloat(el.getAttribute('data-celsius'));
             if (isNaN(celsius)) return;
-
             if (toUnit === 'f') {
                 el.innerText = `${(celsius * 9 / 5 + 32).toFixed(1)}°F`;
             } else {
@@ -42,14 +40,14 @@ document.addEventListener("DOMContentLoaded", function () {
         const now = new Date();
         const hours = now.getHours().toString().padStart(2, "0");
         const minutes = now.getMinutes().toString().padStart(2, "0");
-        timeEl.textContent = `${hours}:${minutes}`;
-
+        const seconds = now.getSeconds().toString().padStart(2, "0");
+        timeEl.textContent = `${hours}:${minutes}:${seconds}`;
         const day = now.getDate();
         const month = months[now.getMonth()];
         const weekday = days[now.getDay()];
         dateEl.textContent = `${day} ${month}, ${weekday}`;
     }
-    updateDateTime();
-});
-        
 
+    updateDateTime(); 
+    setInterval(updateDateTime, 1000); 
+});

@@ -14,7 +14,7 @@ class WeatherReading(models.Model):
 
 class WeatherData(models.Model):
     """Суточные средние данные"""
-    date = models.DateField()
+    date = models.DateField(unique=True)
     temp_avg = models.FloatField()
     temp_min = models.FloatField()
     temp_max = models.FloatField()
