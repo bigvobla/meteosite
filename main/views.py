@@ -1,15 +1,22 @@
+from django.views.decorators.csrf import csrf_exempt
+from io import BytesIO
+from .models import WeatherData, WeatherReading
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator
 from django.db.models import Avg, Min, Max
 from django.utils.timezone import now
 from django.views.decorators.http import require_GET
+from django.utils.timezone import now, timedelta
+from django.utils.timezone import now, localtime
+import io
+import json
 import csv
 import requests
 import base64
+import matplotlib 
+matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
-from io import BytesIO
-from .models import WeatherData, WeatherReading
 
 def get_temperature_plot():
     readings = WeatherReading.objects.order_by('-timestamp')[:12][::-1]
@@ -28,45 +35,22 @@ def get_temperature_plot():
     buffer.seek(0)
     image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
     buffer.close()
+    plt.close()
     return f"data:image/png;base64,{image_base64}"
 
 def home(request):
     try:
-        latest = WeatherReading.objects.latest('timestamp')
-        current = {
-            'temperature': latest.temperature,
-            'humidity': latest.humidity,
-            'pressure': latest.pressure,
-            'wind': get_wind_speed_weatherapi(),
-            'cloudiness': latest.cloudiness,
-            'timestamp': latest.timestamp.strftime('%H:%M'),
-            'date': latest.timestamp.strftime('%d.%m.%Y')
-        }
+        current = WeatherReading.objects.latest('timestamp')
     except WeatherReading.DoesNotExist:
-        current = {
-            'temperature': '-',
-            'humidity': '-',
-            'pressure': '-',
-            'wind': '-',
-            'cloudiness': '-',
-            'timestamp': '--:--',
-            'date': '--.--.----'
-        }
+        current = None
 
-    hourly = WeatherReading.objects.order_by('-timestamp')[:12][::-1]
+    chart_url = get_temperature_plot() 
 
-    context = {
+    return render(request, 'main/home.html', {
         'current': current,
-        'hourly': [{
-            'time': h.timestamp.strftime('%H:%M'),
-            'temp': h.temperature,
-            'condition': '—',
-            'icon': 'main/img/cloudy.png'
-        } for h in hourly],
-        'temp_chart': get_temperature_plot(),
-    }
+        'temp_chart': chart_url
+    })
 
-    return render(request, 'main/home.html', context)
 
 def get_wind_speed_weatherapi(city='Karaganda', api_key='9bd9d06fa2ce42448d3105854252202'):
     try:
@@ -183,6 +167,29 @@ def update_daily_summary():
             'cloudiness': readings.aggregate(Avg('cloudiness'))['cloudiness__avg'],
         }
     )
+    
+def update_daily_summary_for_day(day):
+    readings = WeatherReading.objects.filter(timestamp__date=day)
+
+    if not readings.exists():
+        return
+
+    WeatherData.objects.update_or_create(
+        date=day,
+        defaults={
+            'temp_avg': readings.aggregate(Avg('temperature'))['temperature__avg'],
+            'temp_min': readings.aggregate(Min('temperature'))['temperature__min'],
+            'temp_max': readings.aggregate(Max('temperature'))['temperature__max'],
+            'pressure_avg': readings.aggregate(Avg('pressure'))['pressure__avg'],
+            'pressure_min': readings.aggregate(Min('pressure'))['pressure__min'],
+            'pressure_max': readings.aggregate(Max('pressure'))['pressure__max'],
+            'humidity_avg': readings.aggregate(Avg('humidity'))['humidity__avg'],
+            'humidity_min': readings.aggregate(Min('humidity'))['humidity__min'],
+            'humidity_max': readings.aggregate(Max('humidity'))['humidity__max'],
+            'wind_avg': readings.aggregate(Avg('wind_speed'))['wind_speed__avg'],
+            'cloudiness': readings.aggregate(Avg('cloudiness'))['cloudiness__avg'],
+        }
+    )
 
 @require_GET
 def temperature_chart_data(request):
@@ -191,3 +198,51 @@ def temperature_chart_data(request):
         return JsonResponse({'chart': chart})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+    
+@require_GET
+def current_weather_api(request):
+    try:
+        latest = WeatherReading.objects.latest('timestamp')
+        data = {
+            'temperature': latest.temperature,
+            'humidity': latest.humidity,
+            'pressure': latest.pressure,
+            'wind': latest.wind_speed,
+            'cloudiness': latest.cloudiness,
+            'timestamp': latest.timestamp.strftime("%H:%M:%S"),
+            'date': latest.timestamp.strftime("%d.%m.%Y"),
+        }
+        return JsonResponse(data)
+    except WeatherReading.DoesNotExist:
+        return JsonResponse({'error': 'Нет данных'}, status=404)
+
+@csrf_exempt
+def receive_sensor_data(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            temperature = float(data.get('temperature'))
+            humidity = float(data.get('humidity'))
+            pressure = float(data.get('pressure'))
+
+            # Сохраняем новую запись
+            new_reading = WeatherReading.objects.create(
+                timestamp=now(),
+                temperature=temperature,
+                humidity=humidity,
+                pressure=pressure,
+                wind_speed=0.0,
+                cloudiness=0.0
+            )
+            today = localtime(now()).date() 
+            count_today = WeatherReading.objects.filter(timestamp__date=today).count()
+
+            if count_today == 1:
+                update_daily_summary_for_day(today - timedelta(days=1))
+
+            return JsonResponse({'status': 'ok'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    else:
+        return JsonResponse({'error': 'Only POST method allowed'}, status=405)

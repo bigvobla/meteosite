@@ -79,15 +79,15 @@
                 {% else %}
                 <tr>
                     <td>{{ row.date }}</td>
-                    <td>{{ row.temp_max }}°C</td>
+                    <td>{{ row.temp_max}}°C</td>
                     <td>{{ row.temp_min }}°C</td>
-                    <td>{{ row.temp_avg }}°C</td>
+                    <td>{{ row.temp_avg|floatformat:1 }}°C</td>
                     <td>{{ row.pressure_max }} hPa</td>
                     <td>{{ row.pressure_min }} hPa</td>
-                    <td>{{ row.pressure_avg }} hPa</td>
+                    <td>{{ row.pressure_avg|floatformat:1 }} hPa</td>
                     <td>{{ row.humidity_max }}%</td>
                     <td>{{ row.humidity_min }}%</td>
-                    <td>{{ row.humidity_avg }}%</td>
+                    <td>{{ row.humidity_avg|floatformat:1 }}%</td>
                     <td>{{ row.wind_avg }} м/с</td>
                     <td>{{ row.cloudiness }}%</td>
                 </tr>
