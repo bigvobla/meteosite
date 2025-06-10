@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-ig&6qgl5=$^l)k8oz2(dq(aa@rq-3yh6*1k#!9f1fmsutf&xb2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.1.175', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['192.168.1.175', 'localhost', '127.0.0.1','192.168.158.131']
 
 
 # Application definition
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main.apps.MainConfig',
+    'django_crontab',
 ]
 
 MIDDLEWARE = [
@@ -130,3 +131,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CRONJOBS = [
+    ('*/10 * * * *', 'main.cron.fetch_api')
+]

@@ -1,13 +1,15 @@
 {% extends 'main/base.html' %}
 {% load static cloudiness_tags %}
-
 {% block title %}Главная{% endblock %}
-
-{% block content %}
 {% block scripts %}
 <script src="{% static 'main/js/scripts.js' %}"></script>
+<script>
+  // прокидываем в JS нужные URL’ы
+  window.API_CURRENT_URL = "{% url 'current_weather_api' %}";
+  window.API_CHART_URL   = "{% url 'chart_data' %}";
+</script>
 {% endblock %}
-
+{% block content %}
 <div class="container mt-4">
     <!-- Переключатель температуры -->
     <div class="d-flex justify-content-between pt-3 mb-3">
@@ -18,7 +20,6 @@
         </div>
     </div>
 
-    <!-- Карусель: текущая погода -->
     <div id="weatherSlider" class="carousel slide mb-4" data-bs-interval="false" data-bs-ride="false">
         <div class="carousel-inner" style="border-radius: 20px;">
             <div class="carousel-item active">
@@ -30,7 +31,7 @@
                     <div class="d-flex align-items-center mt-3">
                         <h1 class="display-3 temperature" data-celsius="{{ current.temperature }}">{{ current.temperature }}°C</h1>
                         {% cloud_icon current.cloudiness as cloud_path %}
-                        <img src="{% static cloud_path %}" alt="Облачность" class="weather-icon">
+                        <img src="{% static cloud_path %}" alt="Облачность" class="weather-icon" style="width: 100px; height: 100px;">
                     </div>
                     <div class="mt-2 date" id="current-date"></div>
                     <div class="row mt-4 text-center weather-details">
@@ -48,7 +49,7 @@
                         </div>
                         <div class="col">
                             <p class="mb-1">Ветер</p>
-                            <h6 class="wind">{{ current.wind }} м/с</h6>
+                            <h6 class="wind">{{ current.wind_speed }} м/с</h6>
                         </div>
                     </div>
                 </div>

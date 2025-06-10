@@ -1,15 +1,3 @@
-from django.views.decorators.csrf import csrf_exempt
-from io import BytesIO
-from .models import WeatherData, WeatherReading
-from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
-from django.core.paginator import Paginator
-from django.db.models import Avg, Min, Max
-from django.utils.timezone import now
-from django.views.decorators.http import require_GET
-from django.utils.timezone import now, timedelta
-from django.utils.timezone import now, localtime
-import io
 import json
 import csv
 import requests
@@ -17,6 +5,16 @@ import base64
 import matplotlib 
 matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
+from django.views.decorators.csrf import csrf_exempt
+from io import BytesIO
+from .models import WeatherData, WeatherReading
+from django.shortcuts import render
+from django.http import HttpResponse, JsonResponse
+from django.core.paginator import Paginator
+from django.db.models import Avg, Min, Max
+from django.views.decorators.http import require_GET
+from django.utils.timezone import now, localtime
+from datetime import timedelta
 
 def get_temperature_plot():
     readings = WeatherReading.objects.order_by('-timestamp')[:12][::-1]
@@ -52,16 +50,17 @@ def home(request):
     })
 
 
-def get_wind_speed_weatherapi(city='Karaganda', api_key='9bd9d06fa2ce42448d3105854252202'):
+def get_weatherapi_data(city='Almaty', api_key='9bd9d06fa2ce42448d3105854252202'):
     try:
         url = f"http://api.weatherapi.com/v1/current.json?key={api_key}&q={city}&aqi=no"
         response = requests.get(url, timeout=5)
         data = response.json()
-        wind_kph = data['current']['wind_kph']
-        return round(wind_kph / 3.6, 1)
+        wind_kph = data['current'].get('wind_kph', 0.0)
+        cloud = data['current'].get('cloud', 0.0)
+        return round(wind_kph / 3.6, 1), cloud
     except Exception as e:
-        print("Ошибка WeatherAPI:", e)
-        return '-'
+        print("Ошибка при получении данных с WeatherAPI:", e)
+        return 0.0, 0.0
 
 def about(request):
     return render(request, 'main/about.html')
@@ -225,24 +224,25 @@ def receive_sensor_data(request):
             temperature = float(data.get('temperature'))
             humidity = float(data.get('humidity'))
             pressure = float(data.get('pressure'))
+            wind_speed, cloudiness = get_weatherapi_data()
 
             # Сохраняем новую запись
             new_reading = WeatherReading.objects.create(
-                timestamp=now(),
-                temperature=temperature,
-                humidity=humidity,
-                pressure=pressure,
-                wind_speed=0.0,
-                cloudiness=0.0
+            timestamp=now(),
+            temperature=temperature,
+            humidity=humidity,
+            pressure=pressure,
+            wind_speed=wind_speed,
+            cloudiness=cloudiness
             )
             today = localtime(now()).date() 
             count_today = WeatherReading.objects.filter(timestamp__date=today).count()
 
             if count_today == 1:
                 update_daily_summary_for_day(today - timedelta(days=1))
-
             return JsonResponse({'status': 'ok'})
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
     else:
         return JsonResponse({'error': 'Only POST method allowed'}, status=405)
+

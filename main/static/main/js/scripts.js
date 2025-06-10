@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     document.querySelector('.humidity').textContent = `${data.humidity}%`;
                     document.querySelector('.pressure').textContent = `${data.pressure} Pa`;
                     document.querySelector('.wind').textContent = `${data.wind} м/с`;
-                    document.querySelector('.visibility').textContent = `${data.cloudiness}`;
+                    document.querySelector('.visibility').textContent = `${data.cloudiness}%`;
                     document.getElementById('current-time').textContent = data.timestamp;
                     document.getElementById('current-date').textContent = data.date;
 
